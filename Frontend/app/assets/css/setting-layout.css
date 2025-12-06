@@ -1,0 +1,152 @@
+/* --- Setting layout: 버튼 스타일, 큰 뒤로가기, 컨텐츠 정렬 --- */
+
+/* 메뉴 헤더: 백버튼이 가로로 넓게 보이도록 세로 스택 */
+.menu-header {
+  display: flex;
+  flex-direction: column; /* 백버튼 위, 제목 아래 */
+  align-items: stretch;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+
+/* 큰 가로 뒤로가기 버튼 */
+.back-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(90deg, rgba(91,107,255,0.12), rgba(127,155,255,0.04));
+  color: var(--text);
+  border: 1px solid rgba(91,107,255,0.10);
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(91,107,255,0.08);
+}
+.back-btn:active { transform: translateY(0); }
+
+/* 헤더 제목(백버튼 아래) */
+.menu-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--muted);
+  padding-left: 4px;
+}
+
+/* 메뉴 아이템(기본/프로필/보안) — 기존 테마에 맞춘 개선 */
+.menu-list .menu-item {
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition: background .12s ease, transform .08s ease, border-color .12s ease;
+}
+
+/* hover */
+.menu-list .menu-item:hover {
+  background: linear-gradient(90deg, rgba(91,107,255,0.06), rgba(127,155,255,0.02));
+  transform: translateY(-2px);
+  border-color: rgba(91,107,255,0.06);
+}
+
+/* active (현재 페이지 표시) */
+.menu-list .menu-item.active {
+  background: linear-gradient(90deg, rgba(91,107,255,0.14), rgba(127,155,255,0.06));
+  box-shadow: inset 0 0 0 1px rgba(91,107,255,0.04);
+  color: #fff;
+}
+
+/* 뒤로가기/메뉴 버튼의 아이콘이나 텍스트 정렬에 대응 */
+.menu-item, .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 왼쪽 사이드바의 하단 유저영역은 유지 (기존 .user-info와 연동) */
+.user-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.02);
+}
+
+/* --- 오른쪽 메인 콘텐츠 정렬: 왼쪽 정렬 + 적당한 마진 --- */
+.setting-content {
+  max-width: 980px;            /* 읽기 중심 폭 제한 */
+  margin: 20px 32px;          /* 위아래 20, 좌우 32px 여백 */
+  padding: 12px 18px;
+  background: rgba(255,255,255,0.02); /* 은은한 패널 배경 (원하면 제거) */
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+  color: var(--text);
+  text-align: left;           /* 왼쪽 정렬(요청) */
+}
+
+/* 내부 타이포그래피 보정 */
+.setting-content h1, .setting-content h2, .setting-content h3 {
+  color: var(--text);
+  margin-top: 0;
+}
+.setting-content p {
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* 폼 요소 좌측 정렬 보조 (레이블-인풋 간격) */
+.setting-content .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* 반응형: 좁은 화면 */
+@media (max-width: 900px) {
+  .menu-header { flex-direction: row; align-items: center; }
+  .back-btn { width: auto; padding: 8px 10px; font-size: 0.95rem; }
+  .setting-content { margin: 12px; padding: 10px; box-shadow: none; border-radius: 8px; }
+}
+
+/* 기본적으로 사이드바는 항상 보이도록 */
+aside {
+  width: 250px;
+  transition: transform 0.3s ease;
+}
+
+/* 모바일에서는 숨기고 버튼으로 열기 */
+@media (max-width: 768px) {
+  aside {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    z-index: 1000;
+    background-color: white;
+  }
+
+  aside.mobile-open {
+    transform: translateX(0);
+  }
+
+  .mobile-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: none;
+    border: none;
+    font-size: 24px;
+  }
+}

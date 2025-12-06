@@ -1,0 +1,150 @@
+/* reset / 기본값 */
+:root{
+  --bg: #0b0f14;
+  --surface: #0f1720;
+  --muted: #9aa6b6;
+  --text: #e6eef8;
+  --accent: #5b6bff;
+  --accent-2: #7f9bff;
+  --radius: 10px;
+  --container-max: 1100px;
+  --gap: 12px;
+  --shadow-1: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+/* 박스 모델 통일 */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* 기본 리셋 */
+html, body, #__nuxt, #__layout {
+  height: 100%;
+}
+html {
+  font-size: 16px; /* 필요시 미디어쿼리로 반응형 제어 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial;
+  line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 레이아웃 유틸 */
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* 타이포그래피 기본 */
+h1, h2, h3, h4, h5, h6 { margin: 0; font-weight: 700; color: var(--text); }
+p { margin: 0 0 1rem 0; color: var(--muted); }
+
+/* 링크 & 버튼 기본 */
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, .btn {
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+/* 기본 버튼 변형 */
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: white;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-outline {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+  background: transparent;
+}
+
+/* 폼 엘리먼트 */
+input, textarea, select {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  outline: none;
+}
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 0 0 4px rgba(91,107,255,0.12);
+  border-color: var(--accent);
+}
+
+/* 스크롤바 (크롬 기반) — 다크테마용 */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.10); }
+
+/* 접근성: 포커스 표시 (키보드 사용자용) */
+:focus {
+  outline: 3px solid rgba(91,107,255,0.16);
+  outline-offset: 2px;
+}
+
+/* 애니메이션 축소 선호자 처리 */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* 공통 레이아웃 헬퍼 */
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 반응형: 작은 화면에서 기준 글자 줄임 */
+@media (max-width: 600px) {
+  html { font-size: 15px; }
+  :root { --container-max: 100%; }
+}
+
+/* 선택 텍스트 색상 (다크에 어울리게) */
+::selection { background: rgba(91,107,255,0.24); color: white; }
+
+/* 이미지/비디오 기본 */
+img, video { max-width: 100%; height: auto; display: block; }
+
+.user-actions button,
+.btn,
+.btn-primary,
+.btn-outline {
+  display: inline-flex;       /* flex 사용 */
+  align-items: center;        /* 세로 가운데 정렬 */
+  justify-content: center;    /* 가로 가운데 정렬 */
+  line-height: normal;        /* 줄 높이 초기화 */
+  text-align: center;         /* 글자 가운데 */
+  white-space: nowrap;        /* 글자 줄바꿈 방지 */
+}
