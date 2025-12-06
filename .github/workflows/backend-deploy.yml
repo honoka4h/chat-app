@@ -31,5 +31,5 @@ jobs:
             npm install
             npm run build
 
-            # PM2로 서버 실행/재시작
+            # PM2로 서버 실행/시작
             pm2 restart chat-app || pm2 start dist/main.js --name chat-app
