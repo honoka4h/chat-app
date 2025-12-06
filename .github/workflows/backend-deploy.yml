@@ -1,23 +1,35 @@
-- name: Deploy Backend  
-  uses: appleboy/ssh-action@v0.1.7  
-  with:
-    host: ${{ secrets.SERVER_HOST }}  
-    username: ${{ secrets.SERVER_USER }}  
-    key: ${{ secrets.SSH_PRIVATE_KEY }}  
-    port: 22  
-    script: |
-      # 서버 파일 준비
-      mkdir -p /var/www/chat-app/Backend
+name: Backend Deploy
 
-      # 로컬에서 Backend 폴더 전체 압축해서 서버로 보내기
-      tar czf backend.tar.gz -C $GITHUB_WORKSPACE Backend
-      scp -o StrictHostKeyChecking=no backend.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/chat-app/
-      ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-        cd /var/www/chat-app
-        tar xzf backend.tar.gz
-        cd Backend
-        npm install
-        npm run build
-        pm2 restart chat-app || pm2 start dist/main.js --name chat-app
-        rm backend.tar.gz
-      EOF
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Copy entire backend to server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # 서버에서 전체 파일 받기
+            mkdir -p /var/www/chat-app/Backend
+            rsync -avz ./Backend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/chat-app/Backend/
+
+            cd /var/www/chat-app/Backend
+
+            # 서버에서 설치 + 빌드
+            npm install
+            npm run build
+
+            # PM2로 서버 실행/시작
+            pm2 restart chat-app || pm2 start dist/main.js --name chat-app
