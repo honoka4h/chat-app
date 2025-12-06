@@ -26,4 +26,4 @@ jobs:
             cd /var/www/chat-app/Frontend
             npm install
             npm run build
-            pm2 restart index || pm2 start dist/server/index.mjs --name index
+            pm2 restart index || pm2 start .output/server/index.mjs --name index
