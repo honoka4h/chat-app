@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Copy entire frontend to server
+      - name: Deploy Frontend
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -21,15 +21,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            # 서버에서 전체 파일 받기
+            # 서버 파일 준비
             mkdir -p /var/www/chat-app/Frontend
-            rsync -avz $GITHUB_WORKSPACE/Frontend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/chat-app/Frontend/
 
-            cd /var/www/chat-app/Frontend
-
-            # 서버에서 설치 + 빌드
-            npm install
-            npm run build
-
-            # PM2로 서버 실행/재시작
-            pm2 restart index || pm2 start dist/server/index.mjs --name index
+            # 로컬에서 Frontend 폴더 전체 압축해서 서버로 보내기
+            tar czf frontend.tar.gz -C $GITHUB_WORKSPACE Frontend
+            scp -o StrictHostKeyChecking=no frontend.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/chat-app/
+            ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+              cd /var/www/chat-app
+              tar xzf frontend.tar.gz
+              cd Frontend
+              npm install
+              npm run build
+              pm2 restart chat-frontend || pm2 start dist/main.js --name chat-frontend
+              rm frontend.tar.gz
+            EOF
