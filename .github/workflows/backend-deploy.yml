@@ -8,26 +8,12 @@ on:
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: |
-          cd Backend
-          npm install
-
-      - name: Build
-        run: |
-          cd Backend
-          npm run build
-
-      - name: Copy to server
+      - name: Copy entire backend to server
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -35,7 +21,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            mkdir -p /var/www/chat-app/Backend/dist
-            rsync -avz --exclude 'uploads' ./Backend/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/chat-app/Backend/dist/
+            # 서버에서 전체 파일 받기
+            mkdir -p /var/www/chat-app/Backend
+            rsync -avz ./Backend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/chat-app/Backend/
+
             cd /var/www/chat-app/Backend
+
+            # 서버에서 설치 + 빌드
+            npm install
+            npm run build
+
+            # PM2로 서버 실행/재시작
             pm2 restart chat-app || pm2 start dist/main.js --name chat-app
