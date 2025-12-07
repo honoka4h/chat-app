@@ -27,7 +27,7 @@ async function checkLogin() {
             authStore.setUser(data.value.username, data.value.userid, data.value.nickname); // data.value.nickname
         }
     } catch (err) {
-        console.error(err)
+        console.error(err);
     }
 }
     

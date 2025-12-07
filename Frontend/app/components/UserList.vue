@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="user-list-footer" style="margin-top:12px; display:flex; gap:8px; flex-direction:column;">
-      <NuxtLink to="/chat" class="btn-outline" style="text-align:center;">친구 추가</NuxtLink>
+      <button class="btn-outline" @click="router.push('/chat')">친구 추가</button>
       <button class="btn-outline" @click="goSettings">설정</button>
       <UserInfo />
     </div>

@@ -39,16 +39,20 @@
 </script>
 
 <template>
-    <div>
+    <section class="default-main">
         <h1>로그인</h1>
 
-        <form @submit.prevent="getLogin">
-            <input v-model="username" type="text" placeholder="아이디" />
-            <input v-model="password" type="password" placeholder="비밀번호" />
+        <form class="default-form" @submit.prevent="getLogin">
+            <div class="form-input">
+                <input class="primary-input" v-model="username" type="text" placeholder="아이디" />
+                <input class="primary-input" v-model="password" type="password" placeholder="비밀번호" />
+            </div>
             
-            <button type="submit">
-                전송
+            <button class="primary-button" type="submit">
+                로그인
             </button>
         </form>
-    </div>
+        
+        <NuxtLink to="/register">아직 계정이 없으신가요?</NuxtLink>
+    </section>
 </template>

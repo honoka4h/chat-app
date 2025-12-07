@@ -33,17 +33,21 @@
 </script>
 
 <template>
-    <div>
+    <section class="default-main">
         <h1>회원가입</h1>
 
-        <form @submit.prevent="getRegister">
-            <input v-model="username" type="text" placeholder="아이디" />
-            <input v-model="email" type="text" placeholder="이메일" />
-            <input v-model="password" type="password" placeholder="비밀번호" />
+        <form class="default-form" @submit.prevent="getRegister">
+            <div class="form-input">
+                <input class="primary-input" v-model="username" type="text" placeholder="아이디" />
+                <input class="primary-input" v-model="email" type="text" placeholder="이메일" />
+                <input class="primary-input" v-model="password" type="password" placeholder="비밀번호" />
+            </div>
             
-            <button type="submit">
-                전송
+            <button class="primary-button" type="submit">
+                회원가입
             </button>
         </form>
-    </div>
+
+        <NuxtLink to="/login">이미 계정이 있으신가요?</NuxtLink>
+    </section>
 </template>
