@@ -1,8 +1,4 @@
 <script lang="ts" setup>
-    interface LoginResponse {
-        message: string
-    }
-
     const router = useRouter();
     const config = useRuntimeConfig();
 
@@ -10,9 +6,9 @@
     const password = ref<string>('');
     const email = ref<string>('');
 
-    async function getRegister(): Promise<void> {
+    async function getRegister() {
         try {
-            const data: LoginResponse = await $fetch(`${config.public.apiBase}/api/users/register`, {
+            const data : any = await $fetch(`${config.public.apiBase}/api/users/register`, {
                 method: "POST",
                 body: {
                     username: username.value,
@@ -21,13 +17,10 @@
                 }
             });
 
-            if (data) {
-                alert(data.message);
-                router.push("/");
-            }
-        } catch(error) {
-            console.error(error);
-            alert("회원가입에 실패했습니다.");
+            alert(`환영합니다 ${data.username}님! 로그인 페이지로 이동합니다.`);
+            router.push("/login");
+        } catch(error : any) {
+            alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
         }
     }
 </script>

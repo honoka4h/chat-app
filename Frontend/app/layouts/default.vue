@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import UserCheck from '~/components/UserCheck.vue';
 import '~/assets/css/default-layout.css';
 </script>
 

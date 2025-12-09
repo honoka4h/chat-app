@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import '@/assets/css/chat-layout.css';
-import { ref } from 'vue';
-import UserCheck from '~/components/UserCheck.vue';
-import UserList from '~/components/UserList.vue';
 
+const config = useRuntimeConfig();
 const sidebarVisible = ref(false);
+const friends : any = ref([]);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;

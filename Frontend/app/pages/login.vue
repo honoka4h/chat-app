@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-    interface LoginResponse {
-        message: string;
+    interface SessionUser {
         userid: string;
         username: string;
-        nickname: string;
+        nickname: any;
+        email: string;
     }
     
     import { useAuthStore } from '~/stores/auth';
@@ -15,9 +15,9 @@
     const username = ref<string>('');
     const password = ref<string>('');
 
-    async function getLogin(): Promise<void> {
+    async function getLogin() {
         try {
-            const data: LoginResponse = await $fetch(`${config.public.apiBase}/api/users/login`, {
+            const data : any = await $fetch(`${config.public.apiBase}/api/users/login`, {
                 method: "POST",
                 credentials: 'include',
                 body: {
@@ -25,15 +25,10 @@
                     password: password.value
                 }
             });
-
-            if (data) {
-                alert(data.message);
-                authStore.setUser(data.username, data.userid, data.nickname);
-                router.push("/chat");
-            };
-        } catch(error) {
-            console.error(error);
-            alert("로그인에 실패했습니다.");
+            alert(`환영합니다 ${data.username}님!`);
+            router.push("/chat");
+        } catch(error : any) {
+            alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
         }
     }
 </script>

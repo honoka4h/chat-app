@@ -1,114 +1,291 @@
-import { Inject, Injectable, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, HttpException, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import * as fs from 'fs';
-import * as path from 'path';
-import { NIL, v4 as uuidv4 } from 'uuid';
 import { pool } from '../database';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { ppid } from 'process';
+
+interface Register {
+  username: string;
+  password: string;
+  email: string;
+}
+
+interface Login {
+  username: string;
+  password: string;
+}
+
+interface FriendRequest {
+  userId: string;
+  friendName: string;
+}
+
+interface ChangePassword {
+  userId : number;
+  currentPassword : string;
+  changePassword : string;
+}
+
+interface AcountDelete {
+  userId : number;
+  currentPassword : string;
+}
 
 @Injectable()
 export class UsersService {
   // 회원가입
-  async register(username: string, password: string, email: string) {
-    if (!username && !password && !email) {
-        throw new BadRequestException("모든 칸을 작성해주세요.");
-    }
-
+  async register(body : Register) {
+    const { username, password, email } = body;
     try {
-        const [rows] = await pool.execute<RowDataPacket[]>(
-            "SELECT * FROM users WHERE username = ? LIMIT 1",
-            [username]
-        );
+      // 아이디 중복 확인
+      const [existingUsername] = await pool.execute<RowDataPacket[]>(
+        'SELECT id FROM users WHERE username = ?',
+        [username]
+      )
 
-        if (rows.length > 0 ) {
-            throw new ConflictException("이미 동일한 아이디가 존재합니다.");
-        }
+      if ((existingUsername).length > 0) throw new ConflictException('이미 사용 중인 아이디입니다.');
 
-        const hashed = await argon2.hash(password);
-        const userid = await uuidv4();
+      // 이메일 중복 확인
+      const [existingEmail] = await pool.execute<RowDataPacket[]>(
+        'SELECT id FROM users WHERE email = ?',
+        [email]
+      )
 
-        const [result] = await pool.execute<ResultSetHeader[]>(
-            'INSERT INTO users (userid, username, password, email) VALUES (?, ?, ?, ?)',
-            [userid, username, hashed, email]
-        )
+      if ((existingEmail).length > 0) throw new ConflictException('이미 사용 중인 이메일입니다.');
 
-        return { message: "회원가입에 성공했습니다." }
-    } catch(error: any) {
-        if (error instanceof ConflictException) throw error;
-        console.error(error);
-        throw new InternalServerErrorException();
+      if (password.length < 7) throw new ConflictException('비밀번호는 최소 8글자 이상이어야 합니다.');
+
+      // 비밀번호 해싱
+      const hashedPassword = await argon2.hash(password);
+
+      // 사용자 등록
+      const [result] = await pool.execute<ResultSetHeader>(
+        'INSERT INTO users (username, nickname, password, email) VALUES (?, ?, ?, ?)',
+        [username, username, hashedPassword, email]
+      );
+
+      // 등록된 사용자 ID 반환
+      return { userId: result.insertId, username: username };
+    } catch (error) {
+      // 예외 처리
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('오류가 발생했습니다.');
+      }
     }
   }
 
   // 로그인
-  async login(username: string, password: string) {
-    if (!username && !password ) {
-        throw new BadRequestException("모든 칸을 작성해주세요.");
-    }
-
+  async login(body : Login) {
+    const { username, password } = body;
     try {
-        const [rows] = await pool.execute<RowDataPacket[]>(
-            "SELECT * FROM users WHERE username = ? LIMIT 1",
-            [username]
-        );
+      // 사용자 조회
+      const [users] = await pool.execute<RowDataPacket[]>(
+        'SELECT id, username, nickname, password FROM users WHERE username = ?',
+        [username]
+      );
 
-        if (rows.length < 1) {
-            throw new BadRequestException("아이디 또는 비밀번호가 일치하지 않습니다.");
-        }
+      if (users.length === 0) {
+        throw new BadRequestException('존재하지 않는 아이디입니다.');
+      }
 
-         const user = rows[0];
-         const isMatch = await argon2.verify(user.password, password);
+      const user = users[0];
 
-         if (!isMatch) {
-            throw new BadRequestException("아이디 또는 비밀번호가 일치하지 않습니다.");
-         }
+      // 비밀번호 검증
+      const passwordValid = await argon2.verify(user.password, password);
+      if (!passwordValid) {
+        throw new BadRequestException('비밀번호가 올바르지 않습니다.');
+      }
 
-         return {
-            message: "로그인 성공",
-            userid: user.userid,
-            username: user.username,
-            nickname: user.nickname,
-            email: user.email,
-         };
-        
-    } catch(error) {
-        if (error instanceof ConflictException) throw error;
-        console.error(error);
-        throw new InternalServerErrorException();
+      // 로그인 성공
+      return { userId: user.id, username: user.username, nickname: user.nickname };
+    } catch (error) {
+      // 예외 처리
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('오류가 발생했습니다.');
+      }
     }
   }
 
-  async updateUserProfile(username: string, nickname: string, profileImage: string) {
-    const [rows] = await pool.execute(
-      `SELECT profile_image FROM users WHERE username = ? LIMIT 1`,
-      [username]
+  // 친구 목록 불러오기
+  async checkFriend(userId: string) {
+    const [requests] = await pool.execute<RowDataPacket[]>(
+      'SELECT * FROM friend_requests WHERE senderId = ? OR receiverId = ?',
+      [userId, userId]
     );
 
-    const oldImage = rows[0]?.profile_image;
+    const friends : RowDataPacket[] = [];
 
-    const finalNickname = nickname || username;
-    const finalImage = profileImage || 'default-avatar.png';
+    if (requests.length > 0) {
+      for (const request of requests) {
+        if (request.status === 'accepted') {
+          const friendId = request.senderId === userId ? request.receiverId : request.senderId;
+          const [friendData] = await pool.execute<RowDataPacket[]>(
+            'SELECT id, username, nickname FROM users WHERE id = ?',
+            [friendId]
+          );
 
-    const sql = `
-      UPDATE users
-      SET nickname = ?, profile_image = ?
-      WHERE username = ?
-    `;
-    await pool.execute(sql, [finalNickname, finalImage, username]);
-
-    if (oldImage && !oldImage.includes('default-avatar')) {
-      const filePath = path.join(process.cwd(), 'uploads', 'profiles', oldImage);
-      fs.unlink(filePath, () => {});
+          if (friendData.length > 0) {
+            friends.push(friendData[0]);
+          }
+        }
+      }
     }
 
-    return { username, nickname: finalNickname, profileImage: finalImage };
+    return friends;
   }
 
-  async getUserProfileImage(userid: string): Promise<string> {
-    const sql = `SELECT profile_image FROM users WHERE userid = ? LIMIT 1`;
-    const [rows] = await pool.execute<RowDataPacket[]>(sql, [userid]);
+  // 친구 요청 보내기
+  async sendFriendRequest(body : FriendRequest) {
+    const { userId, friendName } = body;
+    try {
+      const [friends] = await pool.execute<RowDataPacket[]>(
+        'SELECT id FROM users WHERE username = ?',
+        [friendName]
+      );
 
-    if (!rows || rows.length === 0) return 'default-avatar.jpg';
-    return rows[0].profile_image || 'default-avatar.jpg';
+      if (friends.length === 0) {
+        throw new BadRequestException('존재하지 않는 사용자입니다.');
+      }
+      
+      const friendId = friends[0].id;
+
+      if (userId === friendId) {
+        throw new BadRequestException('자기 자신에게는 친구 요청을 보낼 수 없습니다.');
+      }
+      
+      const [existingRequest] = await pool.execute<RowDataPacket[]>(
+        'SELECT * FROM friend_requests WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?)',
+        [userId, friendId, friendId, userId]
+      );
+      
+      if (existingRequest.length > 0) {
+        if (existingRequest[0].senderId === userId) {
+          if (existingRequest[0].status === 'accepted') {
+            throw new ConflictException('이미 친구인 사용자입니다.');
+          } else {
+            throw new ConflictException('이미 친구 요청을 보냈습니다.');
+          }
+        } else if (existingRequest[0].receiverId === userId) {
+          await pool.execute<ResultSetHeader>(
+            'UPDATE friend_requests SET status = ? WHERE senderId = ? AND receiverId = ?',
+            ['accepted', friendId, userId]
+          );
+          return { userId: userId, friendId: friendId, status: 'accepted'};
+        }
+      }
+
+      await pool.execute<ResultSetHeader>(
+        'INSERT INTO friend_requests (senderId, receiverId, status) VALUES (?, ?, ?)',
+        [userId, friendId, 'pending']
+      );
+
+      return { userId: userId, friendId: friendId, status: 'pending'};
+    } catch (error) {
+      // 예외 처리
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('오류가 발생했습니다.');
+      }
+    }
+  }
+
+  async updateProfile(userid : string, username : string, nickname: string) {
+    try {
+      const [users] = await pool.execute<RowDataPacket[]>(
+        'SELECT nickname FROM users WHERE id = ? ',
+        [Number(userid)]
+      )
+
+      if (users.length < 1) {
+        throw new BadRequestException('유저가 존재하지 않습니다.');
+      }
+
+      await pool.execute(
+        'UPDATE users SET nickname = ? WHERE id = ?',
+        [nickname, Number(userid)]
+      )
+
+      return
+    } catch (error) {
+      // 예외 처리
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('오류가 발생했습니다.');
+      }
+    }
+  }
+
+  async changePassword(body : ChangePassword) {
+    const { userId, currentPassword, changePassword } = body;
+
+    try {
+      const [users] = await pool.execute<RowDataPacket[]>(
+        'SELECT * FROM users WHERE id = ?',
+        [userId]
+      )
+      if (users.length < 1) throw new BadRequestException("로그인 후 이용해주세요.");
+
+      const user = users[0];
+      if (!await argon2.verify(user.password, currentPassword)) throw new BadRequestException("현재 비밀번호가 올바르지 않습니다.");
+      if (changePassword.length < 7) throw new ConflictException('비밀번호는 최소 8글자 이상이어야 합니다.');
+
+      const hashedNewPassword = await argon2.hash(changePassword);
+      await pool.execute(
+        'UPDATE users SET password = ? WHERE id = ?',
+        [hashedNewPassword, userId]
+      );
+
+      return { ok : true } ;
+    } catch (error) {
+      // 예외 처리
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('오류가 발생했습니다.');
+      }
+    }
+  }
+
+  async getDelete(body : AcountDelete) {
+    const { userId, currentPassword } = body;
+
+    try {
+      const [users] = await pool.execute<RowDataPacket[]>(
+        'SELECT * FROM users WHERE id = ?',
+        [userId]
+      )
+      if (users.length < 1) throw new BadRequestException("로그인 후 이용해주세요.");
+
+      const user = users[0];
+      if (!await argon2.verify(user.password, currentPassword)) throw new BadRequestException("현재 비밀번호가 올바르지 않습니다.");
+
+      const conn = await pool.getConnection();
+      await conn.beginTransaction();
+      try {
+        await conn.execute('DELETE FROM friend_requests WHERE senderId = ? OR receiverId = ?', [userId, userId]);
+        await conn.execute('DELETE FROM users WHERE id = ?', [userId]);
+        await conn.commit();
+      } catch (e) { // yee~ 율곡 2 yee~
+        await conn.rollback();
+        throw e;
+      } finally {
+        conn.release();
+      }
+
+      return { ok : true }
+    } catch (error) {
+      // 예외 처리
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('오류가 발생했습니다.');
+      }
+    }
   }
 }

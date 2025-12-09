@@ -8,42 +8,47 @@ const config = useRuntimeConfig();
 const showProfile = ref(false);
 const router = useRouter();
 const route = useRoute();
-// --- 아바타 캐싱 ---
 const avatarUrl = ref<string>('');
-
-// 내 프로필 불러오기
-async function fetchMyAvatar() {
-  if (!authStore.userid) return;
-
-  try {
-    const res = await fetch(`${config.public.apiBase}/api/users/${authStore.userid}/profile`);
-    const data = await res.json();
-    avatarUrl.value = `${config.public.apiBase}/uploads/profiles/${data.profileImage}`;
-  } catch {
-    avatarUrl.value = `${config.public.apiBase}/uploads/profiles/default-avatar.jpg`;
-  }
-}
-
-// 처음 로드될 때 불러오기
-fetchMyAvatar();
 
 async function logout() {
   try {
-    await $fetch(`${config.public.apiBase}/api/users/logout`, {
-      method: 'POST',
+    const data : any = await $fetch(`${config.public.apiBase}/api/users/logout`, {
+      method: 'GET',
       credentials: 'include'
     });
+
     authStore.clearUser();
-    alert('로그아웃 되었습니다.');
+    alert(data.message);
     router.push('/');
-  } catch (error) {
-    console.error(error);
-    alert('로그아웃에 실패했습니다.');
+  } catch(error : any) {
+    alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
+  }
+}
+
+async function checkProfileImage() {
+  try {
+    const data : any = await $fetch(`${config.public.apiBase}/api/users/checkProfileImage`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (data.existingImage) {
+      if (!authStore.userid) {
+        avatarUrl.value = `${config.public.apiBase}/uploads/profiles/default-avatar.webp`
+      }
+      watchEffect(() => {
+        avatarUrl.value = `${config.public.apiBase}/uploads/profiles/${authStore.userid}.webp`
+      })
+    } else {
+      avatarUrl.value = `${config.public.apiBase}/uploads/profiles/default-avatar.webp`
+    }
+  } catch(error : any) {
+    avatarUrl.value = `${config.public.apiBase}/uploads/profiles/default-avatar.webp`
+    alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
   }
 }
 
 function editProfile() {
-  // 실제 편집 페이지가 있으면 이동시키자
   router.push('/settings');
 }
 
@@ -53,6 +58,10 @@ function goSettings() {
     query: { from: encodeURIComponent(route.fullPath) }
   });
 }
+
+onMounted(() => {
+  checkProfileImage();
+})
 </script>
 
 <template>
@@ -63,7 +72,7 @@ function goSettings() {
         </div>
       <div>
         <p class="name" @click="showProfile = true">
-          {{ authStore.username }}
+          {{ authStore.nickname }}
         </p>
         <p class="condition">온라인</p>
       </div>

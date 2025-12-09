@@ -73,6 +73,7 @@
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  border: 2px solid #3f3f3f;
 }
 
 .user-avatar img {

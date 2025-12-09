@@ -1,25 +1,31 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+interface Friend {
+  id : number;
+  username: string;
+  nickname: string;
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const username = ref<string | null>(null);
   const nickname = ref<string | null>(null);
-  const userid = ref<string | null>(null);
-  const loggedIn = ref(false);
+  const userid = ref<number | null>(null);
+  const friends = ref<Friend[]>([]);
 
-  function setUser(name: string, id: string, nick: string) {
+  function setUser(name: string, id: number, nick: string, friendList: Friend[]) {
     username.value = name;
     nickname.value = nick;
     userid.value = id;
-    loggedIn.value = !!name;
+    friends.value = friendList;
   }
 
   function clearUser() {
     username.value = null;
     nickname.value = null;
     userid.value = null;
-    loggedIn.value = false;
+    friends.value = [];
   }
 
-  return { username, userid, loggedIn, nickname, setUser, clearUser };
+  return { username, userid, nickname, friends, setUser, clearUser };
 })
