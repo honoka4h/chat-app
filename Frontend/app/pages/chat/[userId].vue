@@ -10,7 +10,7 @@ const config = useRuntimeConfig();
 const authStore = useAuthStore();
 const alarmStore = useAlarmStore();
 
-const socket = io(`${config.public.apiBase}`);
+const socket = io(`${config.public.wsBase}`);
 
 interface Message {
   id: string | number;

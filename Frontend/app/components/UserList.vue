@@ -5,7 +5,7 @@ import { useAlarmStore } from '~/stores/alarm';
 import { io } from 'socket.io-client';
 
 const config = useRuntimeConfig();
-const socket = io(`${config.public.apiBase}`);
+const socket = io(`${config.public.wsBase}`);
 const authStore = useAuthStore();
 const alarmStore = useAlarmStore();
 const router = useRouter();
