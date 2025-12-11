@@ -9,6 +9,8 @@ dotenv.config();
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+console.log(process.env.SESSION_SECRET)
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
