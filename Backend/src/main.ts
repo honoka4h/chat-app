@@ -12,7 +12,8 @@ const session = require('express-session');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: 'http://222.122.202.26:3000/',
+    //origin: 'http://localhost:3000',
+    origin: 'http://222.122.202.26:3000',
     credentials: true,
   });
   app.setGlobalPrefix('api');
