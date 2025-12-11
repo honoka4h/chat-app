@@ -83,7 +83,7 @@ async function submit() {
       alert("업데이트에 실패했습니다.");
     };
   } catch(error : any) {
-    alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
+    alert(error?.data?.message || "오류가 발생했습니다, 다시 시도해주세요.");
   }
 
 }
