@@ -99,6 +99,16 @@
   text-overflow: ellipsis;
 }
 
+.user-alarm {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #FF3B30;
+  border-radius: 9999px;
+  width: 20px;
+  height: 20px;
+}
+
 .user-last {
   font-size: 0.875rem;
   color: #888;

@@ -76,6 +76,10 @@ onMounted(() => {
     userId1: authStore.userid, userId2: friendId
   });
 
+  socket.emit('readMessage', {
+    userId1: authStore.userid, userId2: friendId
+  });
+
   socket.on('previousMessage', (msgs) => {
     if (!msgs) return;
     messages.value = msgs
@@ -84,6 +88,10 @@ onMounted(() => {
   socket.on('newMessage', (msg) => {
     if (!msg) return;
     messages.value.push(msg[0]);
+
+    socket.emit('readMessage', {
+      userId1: authStore.userid, userId2: friendId
+    });
   })
 
   // 보내는 사람 확인

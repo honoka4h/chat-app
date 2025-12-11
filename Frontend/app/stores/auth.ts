@@ -26,5 +26,9 @@ export const useAuthStore = defineStore('auth', () => {
     friends.value = [];
   }
 
-  return { username, userid, nickname, friends, setUser, clearUser };
+  function setNick(nick : string) {
+    nickname.value = nick
+  }
+
+  return { username, userid, nickname, friends, setUser, clearUser, setNick };
 })

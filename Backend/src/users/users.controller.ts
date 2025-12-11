@@ -37,11 +37,7 @@ export class UsersController {
     }
 
     const friendList = await this.usersService.checkFriend(req.session.user.userid);
-    const user = {
-      userid: req.session.user.userid,
-      username: req.session.user.username,
-      nickname: req.session.user.nickname
-    };
+    const user = await this.usersService.checkProfile(Number(req.session.user.userid));
 
     return {user, friendList};
   }

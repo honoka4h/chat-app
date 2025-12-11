@@ -270,6 +270,7 @@ export class UsersService {
       try {
         await conn.execute('DELETE FROM friend_requests WHERE senderId = ? OR receiverId = ?', [userId, userId]);
         await conn.execute('DELETE FROM users WHERE id = ?', [userId]);
+        await conn.execute('DELETE FROM messages WHERE sender_id = ? OR receiver_id = ?', [userId, userId]);
         await conn.commit();
       } catch (e) { // yee~ 율곡 2 yee~
         await conn.rollback();
@@ -288,4 +289,20 @@ export class UsersService {
       }
     }
   }
+
+  async checkProfile(userid : number) {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT id, username, nickname FROM users WHERE id = ?',
+      [userid]
+    )
+
+    const user = rows[0]
+    const result = {
+      userid: user.id,
+      username: user.username,
+      nickname: user.nickname
+    };
+
+    return result;
+  };
 }

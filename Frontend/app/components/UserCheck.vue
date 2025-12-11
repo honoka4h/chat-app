@@ -20,7 +20,8 @@ async function checkLogin() {
         const user = data?.user;
         const friendList = data?.friendList;
 
-        if(user?.userid) {
+        if (user?.userid) {
+            console.log(user.nickname)
             authStore.setUser(user.username, user.userid, user.nickname, friendList);
             if (route.path === '/') {
                 router.push('/chat');

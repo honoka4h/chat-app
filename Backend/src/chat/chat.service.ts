@@ -27,10 +27,26 @@ export class ChatService {
         return rows;
     }
 
-    async checkStatus(fromId : number, toId: Number, roomName: string) {
-        const [rows] = await pool.execute(
-            'UPDATE messages SET status = ? WHERE sender_id = ? AND receiver_id = ? AND room_name = ?',
-            ['delivered', toId, fromId, roomName]
+    async checkStatus(fromId: number, toId: number, roomName: string) {
+        const [rows] = await pool.execute<RowDataPacket[]>(
+            'SELECT id, status FROM messages WHERE sender_id = ? AND receiver_id = ? AND room_name = ?',
+            [toId, fromId, roomName]
+        );
+
+        for (const item of rows) {
+            if (item.status !== "sent") continue;
+
+            await pool.execute(
+                'UPDATE messages SET status = ? WHERE id = ?',
+                ['delivered', item.id]
+            );
+        }
+    }
+
+    async readMessage(fromId : number, toId: number, roomName: string) {
+        const [result] = await pool.execute<ResultSetHeader>(
+            `UPDATE messages SET status = 'read' WHERE sender_id = ? AND receiver_id = ? AND room_name = ? AND status != 'read'`,
+            [toId, fromId, roomName]
         );
     }
 }

@@ -73,8 +73,15 @@ async function submit() {
         body: formData
     });
 
-    if (data && data.ok) alert("성공적으로 프로필을 업데이트 했습니다. 새로고침을 하시면 변경사항이 적용됩니다.");
-    else alert("업데이트에 실패했습니다.");
+    console.log(data)
+
+    if (data && data.ok) {
+      auth.setNick(nickname.value);
+      console.log(auth.nickname);
+      alert("성공적으로 프로필을 업데이트 했습니다. 새로고침을 하시면 변경사항이 적용됩니다.");
+    } else {
+      alert("업데이트에 실패했습니다.");
+    };
   } catch(error : any) {
     alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
   }

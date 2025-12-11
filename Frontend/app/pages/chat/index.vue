@@ -33,7 +33,7 @@ async function addFriend() {
     }
 
     if (data.status === 'accepted') {
-      alert('친구 추가가 완료되었습니다.');
+      alert('친구 추가가 완료되었습니다. 새로고침 후 메세지를 보낼수 있습니다.');
     } else if (data.status === 'pending') {
       alert('친구 요청을 전송했습니다.');
     }

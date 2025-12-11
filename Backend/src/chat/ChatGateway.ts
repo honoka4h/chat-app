@@ -39,4 +39,15 @@ export class ChatGateway {
     client.to(roomName).emit('newMessage', message);
     client.emit('newMessage', message);
   }
+
+  @SubscribeMessage('readMessage')
+  async readMessage(
+    @MessageBody() payload : joinDirectRoom,
+    @ConnectedSocket() client : Socket
+  ) {
+    const { userId1, userId2 } = payload;
+    const roomName = [userId1, userId2].sort((a, b) => a - b).join('_');
+
+    await this.chatService.readMessage(userId1, userId2, roomName);
+  }
 }

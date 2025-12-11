@@ -11,7 +11,9 @@ const alarmStore = useAlarmStore();
 const router = useRouter();
 const route = useRoute();
 
+const userIdParam = route.params.userId;
 const friends = ref<Friend[]>([]);
+const isNewMessage = ref<Record<number, boolean>>({});
 
 interface Friend {
   id : number;
@@ -20,6 +22,7 @@ interface Friend {
 }
 
 async function joinDirectRoom(friendId : number) {
+  isNewMessage.value[friendId] = false;
   router.push(`/chat/${friendId}`);
 }
 
@@ -41,20 +44,43 @@ onMounted(() => {
   });
 
   socket.on('previousMessage', (msgs) => {
-    let alarms : number = 0;
-    let senderId : number = 0;
-    for (const item of msgs) {
-      if (item.status == "delivered") {
-        alarms ++;
-        senderId = item.sender_id;
-      };
-    };
+    const last = msgs[msgs.length - 1];
+    const lastSender = last.sender_id;
+    const lastReceiver = last.receiver_id;
 
-    alarmStore.setAlarms(senderId, alarms);
+    const partnerId = lastSender === authStore.userid ? lastReceiver : lastSender;
+
+    if (lastSender === authStore.userid) {
+      alarmStore.setAlarms(partnerId, 0);
+      isNewMessage.value[partnerId] = false;
+      return;
+    }
+
+    let alarms = 0;
+    for (const item of msgs) {
+      if (item.status === "delivered" && item.sender_id !== authStore.userid) {
+        alarms++;
+      }
+    }
+
+    if (alarms > 0) isNewMessage.value[partnerId] = true;
+    alarmStore.setAlarms(partnerId, alarms);
   });
 
+
   socket.on('newMessage', (msg) => {
-    alarmStore.addAlarm(msg[0].sender_id);
+    const data = msg[0];
+    const partnerId = msg[0].sender_id === authStore.userid ? msg[0].receiver_id : msg[0].sender_id;
+
+    if (data.sender_id === authStore.userid) {
+      isNewMessage.value[partnerId] = false;
+      return;
+    }
+
+    if (data.status === "delivered" || data.status === "sent") {
+      isNewMessage.value[partnerId] = true;
+      alarmStore.addAlarm(data.sender_id);
+    }
   });
 });
 
@@ -94,12 +120,12 @@ watchEffect(() => {
               <div class="user-name">{{ item.username }}</div>
               <div class="user-last">대화 시작하기</div>
             </div>
-            <div>
+            <div v-show="isNewMessage[item.id]" class="user-alarm">
               {{ alarmStore.alarms[item.id] }}
             </div>
           </button>
         </li>
-        <li v-if="friends.length === 0" class="user-last" style="padding:10px 0; color:var(--muted);">친구가 없습니다.</li>
+        <li v-if="friends.length === 0" class="user-last">친구가 없습니다.</li>
       </ul>
     </div>
 
