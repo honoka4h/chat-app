@@ -46,7 +46,7 @@ async function submit() {
 }
 
 async function submit2() {
-  if (!confirm("계정을 정말 삭제하시겠습니까? 삭제시 즉각 모든 정보가 삭제되며 복구할수 없으니 신중히 선택하시기 바랍니다.")) return;
+  if (!confirm("계정을 정말 삭제하시겠습니까? 삭제시 즉각 모든 정보가 삭제되며, 복구할수 없으니 신중히 선택하시기 바랍니다.")) return;
 
   try {
       const data : any = await $fetch(`${config.public.apiBase}/api/users/delete`, {
