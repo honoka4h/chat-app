@@ -5,16 +5,12 @@ import { useAlarmStore } from '~/stores/alarm';
 import { io } from 'socket.io-client';
 
 const config = useRuntimeConfig();
-const socket = io(`${config.public.apiBase}`, {
-  transports: ['websocket', 'polling'],
-  withCredentials: true,
-});
+const socket = io(`${config.public.apiBase}`);
 const authStore = useAuthStore();
 const alarmStore = useAlarmStore();
 const router = useRouter();
 const route = useRoute();
 
-const userIdParam = route.params.userId;
 const friends = ref<Friend[]>([]);
 const isNewMessage = ref<Record<number, boolean>>({});
 
