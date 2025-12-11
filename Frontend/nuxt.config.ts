@@ -4,9 +4,6 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineNuxtConfig({
   modules: ['@pinia/nuxt'],
   ssr: false,
-  nitro: {
-    preset: 'static'
-  },
   app: {
     baseURL: './',
     buildAssetsDir: '_nuxt/',
