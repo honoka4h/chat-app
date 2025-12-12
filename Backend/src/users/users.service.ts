@@ -91,7 +91,6 @@ export class UsersService {
       }
 
       const user = users[0];
-      console.log("유저:", user)
 
       // 비밀번호 검증
       const passwordValid = await argon2.verify(user.password, password);
@@ -102,7 +101,6 @@ export class UsersService {
       // 로그인 성공
       return { userId: user.id, username: user.username, nickname: user.nickname };
     } catch (error) {
-      console.error('Login error:', error);
       // 예외 처리
       if (error instanceof HttpException) {
         throw error;

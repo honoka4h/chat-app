@@ -19,7 +19,6 @@ export class UsersController {
 
   @Post('login')
   async getLogin(@Body() body : LoginDto, @Req() req: Request) {
-    console.log('Login body:', body)
     const result = await this.usersService.login(body);
 
     // 세션 발급
