@@ -17,7 +17,7 @@
                 }
             });
 
-            alert(`환영합니다 ${data.username}님! 로그인 페이지로 이동합니다.`);
+            alert(`환영합니다 ${data.username}님, 로그인 페이지로 이동합니다.`);
             router.push("/login");
         } catch(error : any) {
             alert(error?.data?.message || "오류가 발생했습니다. 다시 시도해주세요.");
