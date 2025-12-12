@@ -7,8 +7,8 @@ import * as dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+import session from 'express-session';
 const cookieParser = require('cookie-parser');
-const session = require('cookie-session');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,15 +34,23 @@ async function bootstrap() {
     }
   ));
 
+  if (!process.env.SESSION_SECRET) {
+    console.error("SESSION_SECRET is not defined");
+  }
+
   app.use('/uploads/profiles', express.static('uploads/profiles'));
   app.use(cookieParser());
   app.use(
     session({
-      keys: [process.env.SESSION_SECRET],
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60,
+      secret: process.env.SESSION_SECRET || "7df08SHGK2910xkS",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60,
+      },
     }),
   );
 
