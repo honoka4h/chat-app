@@ -72,16 +72,16 @@
   background: #f5f5f5;
 }
 
-form {
+.chat-container form {
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
 
-form input {
+.chat-container form input {
   width: 87%;
 }
 
-form button {
+.chat-container form button {
   width: 10%;
 }
