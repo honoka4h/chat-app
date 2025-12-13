@@ -49,4 +49,11 @@ export class ChatService {
             [toId, fromId, roomName]
         );
     }
+    
+    async deleteMessage(roomName: string, content : string) {
+        const [result] = await pool.execute<ResultSetHeader>(
+            'DELETE FROM messages WHERE room_name = ? AND content = ?',
+            [roomName, content]
+        )
+    }
 }

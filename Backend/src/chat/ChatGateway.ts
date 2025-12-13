@@ -1,7 +1,7 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
-import { joinDirectRoom, sendMessage, previousMessage } from './dto/chat.dto';
+import { joinDirectRoom, sendMessage, previousMessage, deleteMessage } from './dto/chat.dto';
 
 @WebSocketGateway({ cors: {
       origin: true
@@ -51,5 +51,19 @@ import { joinDirectRoom, sendMessage, previousMessage } from './dto/chat.dto';
     const roomName = [userId1, userId2].sort((a, b) => a - b).join('_');
 
     await this.chatService.readMessage(userId1, userId2, roomName);
+  }
+
+  @SubscribeMessage('deleteMessage')
+  async deleteMessage(
+    @MessageBody() payload : deleteMessage,
+    @ConnectedSocket() client : Socket
+  ) {
+    const { userId1, userId2, content } = payload;
+    const roomName = [userId1, userId2].sort((a, b) => a - b).join('_');
+
+    await this.chatService.deleteMessage(roomName, content);
+    const messages = await this.chatService.getMessages(roomName);
+
+    client.emit('previousMessage', messages);
   }
 }

@@ -73,31 +73,41 @@ async function submit2() {
 </script>
 
 <template>
-<section>
+<div class="setting-page">
   <h1>보안 설정</h1>
-  <button @click="getPopup">비밀번호 변경</button>
-  <div v-show="passwordPopup">
-    <h3>비밀번호 변경하기</h3>
-    <form @submit.prevent="submit">
-      <input v-model="currentPassword" type="password" placeholder="현재 비밀번호" />
-      <input v-model="changePassword" type="password" placeholder="변경할 비밀번호" />
-              
-      <button type="submit">
-        전송
-      </button>
-  </form>
+  <button @click="getPopup" class="primary-button">비밀번호 변경</button>
+  <div v-show="passwordPopup" class="modal-backdrop">
+    <div class="modal">
+      <button class="modal-close" @click="passwordPopup = false">✕</button>
+      <h3>비밀번호 변경하기</h3>
+      <form @submit.prevent="submit" class="input-form">
+        <div class="password-input">
+          <input v-model="currentPassword" type="password" placeholder="현재 비밀번호" class="primary-input" />
+          <input v-model="changePassword" type="password" placeholder="변경할 비밀번호" class="primary-input" />
+        </div>
+                
+        <button type="submit" class="outline-button">
+          변경
+        </button>
+      </form>
+    </div>
   </div>
 
-  <button @click="getDelete">계정 삭제</button>
-  <div v-show="deletePopup">
-    <h3>계정 삭제하기</h3>
-    <form @submit.prevent="submit2">
-      <input v-model="currentPassword" type="password" placeholder="현재 비밀번호" />
-              
-      <button type="submit">
-        전송
-      </button>
-  </form>
+  <button @click="getDelete" class="primary-button">계정 삭제</button>
+  <div v-show="deletePopup" class="modal-backdrop">
+    <div class="modal">
+      <button class="modal-close" @click="deletePopup = false">✕</button>
+      <h3>계정 삭제하기</h3>
+      <form @submit.prevent="submit2" class="input-form">
+        <div class="password-input">
+          <input v-model="currentPassword" type="password" placeholder="현재 비밀번호" class="primary-input" />
+        </div>
+                
+        <button type="submit" class="outline-button">
+          삭제
+        </button>
+      </form>
+    </div>
   </div>
-</section>
+</div>
 </template>

@@ -26,3 +26,14 @@ export class previousMessage {
   @IsNumber()
   toId: number;
 }
+
+export class deleteMessage {
+  @IsNumber()
+  userId1: number;
+
+  @IsNumber()
+  userId2: number;
+
+  @IsString()
+  content: string;
+}

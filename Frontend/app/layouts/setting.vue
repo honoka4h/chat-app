@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import '@/assets/css/chat-layout.css';
+import '@/assets/css/setting-layout.css';
 
 const sidebarVisible = ref(false);
 const route = useRoute();
@@ -24,12 +24,13 @@ onMounted(() => {
     <aside :class="{ 'mobile-open': sidebarVisible }">
       <SettingMenu />
     </aside> -->
-    <aside>
+    <aside class="setting-aside">
       <SettingMenu />
     </aside>
 
     <main>
-      <slot />
+     <slot />
     </main>
   </div>
 </template>
+

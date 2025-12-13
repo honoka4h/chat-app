@@ -14,6 +14,8 @@ const nickname = await ref<string | null>(auth.nickname);
 const file = await ref<File>();
 const config = useRuntimeConfig();
 
+const avatarUrl = ref<string>('');
+
 function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement
   const selectedFiles = target.files;
@@ -39,8 +41,9 @@ function handleFileChange(event: Event) {
     target.value = '';
     return
   }
-
+  
   file.value = selectedFiles[0];
+  avatarUrl.value = URL.createObjectURL(file.value);
 }
 
 async function submit() {
@@ -87,18 +90,35 @@ async function submit() {
   }
 
 }
+
+const onError = () => {
+  avatarUrl.value = `${config.public.apiBase}/uploads/profiles/default-avatar.webp`;
+};
+
+onMounted(() => {
+  avatarUrl.value = `${config.public.apiBase}/uploads/profiles/${auth.userid}.webp`;
+})
 </script>
 
 <template>
-  <h1>프로필 설정</h1>
+  <div class="setting-page">
+    <h1>프로필 설정</h1>
 
-  <form @submit.prevent="submit">
-      <input v-model="nickname" type="text" placeholder="사용자 이름" />
-      <input type="file" name="file" accept="image/*" @change="handleFileChange" />
-              
-      <button type="submit">
-        전송
-      </button>
-  </form>
+    <form class="profile-form" @submit.prevent="submit">
+        <div class="form-top">
+          <label for="avatarInput" class="avatar-wrapper">
+            <img :src="avatarUrl" @error="onError" class="profile-image" />
+            <span class="avatar-overlay">변경</span>
+          </label>
+          <input v-model="nickname" type="text" placeholder="사용자 이름" class="primary-input" />
+        </div>
+        
+        <input type="file" id="avatarInput" name="file" accept="image/*" hidden @change="handleFileChange" />
+        <button type="submit" class="outline-button">
+          저장
+        </button>
+    </form>
 
+    <p>사진을 클릭하여 프로필 사진을 변경할수 있습니다. 프로필 사진은 2MB 이하의 사진만 가능합니다.</p>
+  </div>
 </template>

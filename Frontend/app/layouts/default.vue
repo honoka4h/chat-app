@@ -16,7 +16,7 @@ import '~/assets/css/default-layout.css';
       </nav>
     </header>
 
-    <UserCheck />
+    <!-- <UserCheck /> -->
 
     <main class="site-main">
       <slot />

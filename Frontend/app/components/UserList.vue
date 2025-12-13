@@ -38,9 +38,9 @@ function onImgError(event: Event) {
 }
 
 onMounted(() => {
-  socket.on('joinedRoom', (roomName) => {
-    alert(`${roomName} 방에 입장했습니다.`);
-  });
+  // socket.on('joinedRoom', (roomName) => {
+  //   console.log(`${roomName} 방에 입장했습니다.`);
+  // });
 
   socket.on('previousMessage', (msgs) => {
     const last = msgs[msgs.length - 1];
@@ -116,7 +116,7 @@ watchEffect(() => {
               <img :src="`${config.public.apiBase}/uploads/profiles/${item.id}.webp`" alt="avatar" @error="onImgError" />
             </div>
             <div class="user-meta">
-              <div class="user-name">{{ item.username }}</div>
+              <div class="user-name">{{ item.nickname }}</div>
               <div class="user-last">대화 시작하기</div>
             </div>
             <div v-show="isNewMessage[item.id]" class="user-alarm">

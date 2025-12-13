@@ -5,6 +5,10 @@ import { useAuthStore } from '~/stores/auth';
 const authStore = useAuthStore();
 const router = useRouter();
 
+definePageMeta({
+  ssr: true
+})
+
 watch(
   () => authStore.username,
   (newVal) => {
