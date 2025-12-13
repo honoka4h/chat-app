@@ -117,7 +117,14 @@ const getAvatarUrl = (item: Message) => {
     return `${config.public.apiBase}/uploads/profiles/${authStore.userid}.webp` || `${config.public.apiBase}/uploads/profiles/default-avatar.webp`;
   }
 
-  return `${config.public.apiBase}/uploads/profiles/${authStore.friends[item.sender_id]?.id}.webp` || `${config.public.apiBase}/uploads/profiles/default-avatar.webp`;
+  console.log(`${config.public.apiBase}/uploads/profiles/${authStore.friends[item.sender_id]?.id}.webp`)
+  
+  for (const f of authStore.friends) {
+    if (f.id !== item.sender_id) continue;
+     return `${config.public.apiBase}/uploads/profiles/${f.id}.webp`
+  }
+
+  return `${config.public.apiBase}/uploads/profiles/default-avatar.webp`;
 }
 
 onMounted(() => {
