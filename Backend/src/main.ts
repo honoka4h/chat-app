@@ -12,14 +12,7 @@ import session from 'express-session';
 const cookieParser = require('cookie-parser');
 
 async function bootstrap() {
-  const httpsOptions = {
-    key: fs.readFileSync('/etc/ssl/cloudflare/origin.key'),
-    cert: fs.readFileSync('/etc/ssl/cloudflare/origin.pem'),
-  };
-
-  const app = await NestFactory.create(AppModule, {
-    httpsOptions,
-  });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: ['https://velocibet.com', 'https://www.velocibet.com'],
@@ -64,6 +57,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(443);
+  await app.listen(8000);
 }
 bootstrap();
