@@ -43,12 +43,18 @@ const closeMenu = () => {
 }
 
 const deleteMessage = (item: Message) => {
+  if (!confirm("정말 메세지를 삭제하시겠습니까?")) return;
   closeMenu();
   socket.emit('deleteMessage', {
+    messageId: item.id,
     userId1 : authStore.userid,
     userId2 : friendId,
     content : item.content
   })
+}
+
+function reportMessage() {
+  alert("기능 구현 예정입니다.");
 }
 
 
@@ -75,7 +81,7 @@ function friendMiddleware() {
   }
 
   if (!isExistingFriend) {
-    alert("실제 존재하는 userId가 아니거나, 친구로 등록되지 않은 사용자입니다.");
+    // alert("실제 존재하는 userId가 아니거나, 친구로 등록되지 않은 사용자입니다.");
     router.push('/chat');
   }
 
@@ -183,7 +189,8 @@ watch(messages, async () => {
           <span>{{ formatKoreanTime(item.created_at) }}</span>
           <p @click.stop="toggleMenu(item.id)">︙</p>
           <div v-if="openMenuId === item.id" class="message-menu" >
-            <button @click="deleteMessage(item)">삭제</button>
+            <button v-if="item.sender_id === authStore.userid" @click="deleteMessage(item)">삭제</button>
+            <button v-else @click="reportMessage">신고</button>
           </div>
         </div>
         <p>{{ item.content }}</p>

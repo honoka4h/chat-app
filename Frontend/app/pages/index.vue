@@ -23,8 +23,8 @@ watch(
 <template>
   <section class="default-main">
     <div class="main-title">
-      <h1>메신저</h1>
-      <p>빠르고 안전한 메시징, 지금 시작하세요.</p>
+      <h1>벨로시벳</h1>
+      <p>지금 이 순간을 잇는 메신저.</p>
     </div>
     <div class="main-decision">
       <NuxtLink to="/login" class="primary-button">로그인</NuxtLink>

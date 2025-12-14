@@ -58,10 +58,10 @@ import { joinDirectRoom, sendMessage, previousMessage, deleteMessage } from './d
     @MessageBody() payload : deleteMessage,
     @ConnectedSocket() client : Socket
   ) {
-    const { userId1, userId2, content } = payload;
+    const { messageId, userId1, userId2, content } = payload;
     const roomName = [userId1, userId2].sort((a, b) => a - b).join('_');
 
-    await this.chatService.deleteMessage(roomName, content);
+    await this.chatService.deleteMessage(messageId, roomName, content);
     const messages = await this.chatService.getMessages(roomName);
 
     client.emit('previousMessage', messages);

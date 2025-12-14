@@ -29,6 +29,9 @@ export class previousMessage {
 
 export class deleteMessage {
   @IsNumber()
+  messageId: number;
+  
+  @IsNumber()
   userId1: number;
 
   @IsNumber()

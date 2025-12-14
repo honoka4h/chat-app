@@ -50,10 +50,10 @@ export class ChatService {
         );
     }
     
-    async deleteMessage(roomName: string, content : string) {
+    async deleteMessage(messageId : number, roomName: string, content : string) {
         const [result] = await pool.execute<ResultSetHeader>(
-            'DELETE FROM messages WHERE room_name = ? AND content = ?',
-            [roomName, content]
+            'DELETE FROM messages WHERE id = ? AND room_name = ? AND content = ?',
+            [messageId, roomName, content]
         )
     }
 }

@@ -5,17 +5,27 @@ import { AppModule } from './app.module';
 import * as express from 'express';
 import * as dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 import session from 'express-session';
 const cookieParser = require('cookie-parser');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const httpsOptions = {
+    key: fs.readFileSync('/etc/ssl/cloudflare/origin.key'),
+    cert: fs.readFileSync('/etc/ssl/cloudflare/origin.pem'),
+  };
+
+  const app = await NestFactory.create(AppModule, {
+    httpsOptions,
+  });
+
   app.enableCors({
-    origin: true,
+    origin: ['https://velocibet.com', 'https://www.velocibet.com'],
     credentials: true,
   });
+
   app.setGlobalPrefix('api');
   
   app.useGlobalPipes(new ValidationPipe(
@@ -47,13 +57,13 @@ async function bootstrap() {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 1000 * 60 * 60,
       },
     }),
   );
 
-  await app.listen(8000);
+  await app.listen(443);
 }
 bootstrap();
