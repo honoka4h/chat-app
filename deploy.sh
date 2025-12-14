@@ -13,4 +13,5 @@ cd /var/www/chat-app/Frontend
 git pull origin main
 npm install
 npm run build
-pm2 restart index || pm2 start .output/server/index.mjs --name "index"
+pm2 restart index || pm2 start ecosystem.config.js --only index
+
