@@ -13,6 +13,10 @@ const cookieParser = require('cookie-parser');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const expressApp = app.getHttpAdapter().getInstance() as express.Express;
+
+  // 클라우드플레어 프록시 신뢰
+  expressApp.set('trust proxy', 1);
 
   app.enableCors({
     origin: ['https://velocibet.com', 'https://www.velocibet.com'],
