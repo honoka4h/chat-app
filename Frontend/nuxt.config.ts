@@ -2,7 +2,7 @@
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt', '@nuxt/content'],
+  modules: ['@pinia/nuxt'],
   ssr: false,
   app: {
     baseURL: './'
